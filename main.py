@@ -10,5 +10,4 @@ if __name__ == '__main__':
     rec = SELFRec(conf)
     rec.execute()
     e = time.time()
-    print()
     print("Running time: %f s" % (e - s))
