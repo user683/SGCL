@@ -1,0 +1,13 @@
+2024-02-01 15:14:58,348 - SGCL - INFO - ### model configuration ###
+2024-02-01 15:14:58,348 - SGCL - INFO - training.set=./dataset/yelp2020/train.txt
+2024-02-01 15:14:58,348 - SGCL - INFO - test.set=./dataset/yelp2020/test.txt
+2024-02-01 15:14:58,348 - SGCL - INFO - model.name=SGCL
+2024-02-01 15:14:58,348 - SGCL - INFO - model.type=graph
+2024-02-01 15:14:58,348 - SGCL - INFO - item.ranking=-topN 10,20
+2024-02-01 15:14:58,348 - SGCL - INFO - embedding.size=64
+2024-02-01 15:14:58,348 - SGCL - INFO - num.max.epoch=20
+2024-02-01 15:14:58,348 - SGCL - INFO - batch_size=2048
+2024-02-01 15:14:58,348 - SGCL - INFO - learnRate=0.001
+2024-02-01 15:14:58,349 - SGCL - INFO - reg.lambda=0.0001
+2024-02-01 15:14:58,349 - SGCL - INFO - SGL=-n_layer 2 -lambda 0.1 -droprate 0.1 -augtype 1 -temp 0.2
+2024-02-01 15:14:58,349 - SGCL - INFO - output.setup=-dir ./results/
