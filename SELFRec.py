@@ -10,9 +10,6 @@ class SELFRec(object):
         self.test_data = FileIO.load_data_set(config['test.set'], config['model.type'])
 
         self.kwargs = {}
-        if config.contain('social.data'):
-            social_data = FileIO.load_social_data(self.config['social.data'])
-            self.kwargs['social.data'] = social_data
         # if config.contains('feature.data'):
         #     self.social_data = FileIO.loadFeature(config,self.config['feature.data'])
         print('Reading data and preprocessing...')

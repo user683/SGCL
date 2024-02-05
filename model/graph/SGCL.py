@@ -1,7 +1,5 @@
 import torch
-import numpy as np
 import torch.nn as nn
-import torch.nn.functional as F
 from base.graph_recommender import GraphRecommender
 from util.conf import OptionConf
 from util.sampler import next_batch_pairwise
