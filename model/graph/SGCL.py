@@ -26,7 +26,7 @@ class SGCL(GraphRecommender):
         model = self.model.cuda()
         optimizer = torch.optim.Adam(model.parameters(), lr=self.lRate)
         for epoch in range(self.maxEpoch):
-            dropped_adj1 = model.graph_reconstruction()  # 图增强操作
+            dropped_adj1 = model.graph_reconstruction()
             dropped_adj2 = model.graph_reconstruction()
             for n, batch in enumerate(next_batch_pairwise(self.data, self.batch_size, self.num_negative)):
                 user_idx, pos_idx, neg_idx = batch
