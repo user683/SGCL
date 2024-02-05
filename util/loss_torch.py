@@ -3,7 +3,7 @@ import torch.nn.functional as F
 import torch.nn as nn
 
 
-def rince_loss(out_1, out_2, lam, p, temperature):
+def scl_loss(out_1, out_2, lam, p, temperature):
     out_1, out_2 = F.normalize(out_1, dim=1), F.normalize(out_2, dim=1)
     similarity = torch.exp(torch.mm(out_1, out_2.t()) / temperature)
     neg = torch.sum(similarity, 1)

@@ -6,7 +6,7 @@ from base.graph_recommender import GraphRecommender
 from util.conf import OptionConf
 from util.sampler import next_batch_pairwise
 from base.torch_interface import TorchGraphInterface
-from util.loss_torch import bpr_loss, l2_reg_loss, InfoNCE, rince_loss
+from util.loss_torch import bpr_loss, l2_reg_loss, InfoNCE, scl_loss
 from data.augmentor import GraphAugmentor
 
 
@@ -33,7 +33,7 @@ class SGCL(GraphRecommender):
                 user_idx, pos_idx, neg_idx = batch
                 user_emb, pos_item_emb, neg_item_emb = model.negative_mixup(user_idx, pos_idx, neg_idx)
                 rec_loss = bpr_loss(user_emb, pos_item_emb, neg_item_emb)
-                rince_loss = 0.01 * model.cal_rince_loss([user_idx, pos_idx, neg_idx], dropped_adj1, dropped_adj2)
+                rince_loss = 0.01 * model.cal_scl_loss([user_idx, pos_idx, neg_idx], dropped_adj1, dropped_adj2)
                 batch_loss = rec_loss + l2_reg_loss(self.reg, user_emb, pos_item_emb,
                                                     neg_item_emb) + rince_loss
                 # Backward and optimize
@@ -151,7 +151,7 @@ class SGL_Encoder(nn.Module):
         negs = torch.mean(negs, dim=1)
         return u_emb, item_emb[pos_item], negs
 
-    def cal_rince_loss(self, idx, perturbed_mat1, perturbed_mat2):
+    def cal_scl_loss(self, idx, perturbed_mat1, perturbed_mat2):
         u_idx = torch.unique(torch.Tensor(idx[0]).type(torch.long)).cuda()
         i_idx = torch.unique(torch.Tensor(idx[1]).type(torch.long)).cuda()
         user_view_1, item_view_1 = self.forward(perturbed_mat1)
@@ -162,4 +162,4 @@ class SGL_Encoder(nn.Module):
         view2 = torch.cat((user_view_2[u_idx], item_view_2[i_idx]), 0)
         # return (rince_loss(view1, view2, 0.1, 0.01, self.temp) +
         #         rince_loss(neg_view1, neg_view2, 0.1, 0.1, self.temp))
-        return rince_loss(view1, view2, 0.1, 0.01, self.temp)
+        return scl_loss(view1, view2, 0.1, 0.01, self.temp)
