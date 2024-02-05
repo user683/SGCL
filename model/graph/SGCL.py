@@ -13,13 +13,14 @@ class SGCL(GraphRecommender):
         super(SGCL, self).__init__(conf, training_set, test_set)
         self.best_user_emb = None
         self.best_item_emb = None
-        args = OptionConf(self.config['SGL'])
-        self.cl_rate = float(args['-lambda'])
+        args = OptionConf(self.config['SGCL'])
+        self.cl_rate = float(args['-beta'])
         aug_type = self.aug_type = int(args['-augtype'])
         drop_rate = float(args['-droprate'])
         n_layers = int(args['-n_layer'])
         temp = float(args['-temp'])
-        self.model = SGL_Encoder(self.data, self.emb_size, drop_rate, n_layers, temp, aug_type)
+        num_negative = self.config['num_negative']
+        self.model = SGL_Encoder(self.data, self.emb_size, drop_rate, n_layers, temp, num_negative, aug_type)
 
     def train(self):
         model = self.model.cuda()
@@ -27,13 +28,13 @@ class SGCL(GraphRecommender):
         for epoch in range(self.maxEpoch):
             dropped_adj1 = model.graph_reconstruction()  # 图增强操作
             dropped_adj2 = model.graph_reconstruction()
-            for n, batch in enumerate(next_batch_pairwise(self.data, self.batch_size, 40)):
+            for n, batch in enumerate(next_batch_pairwise(self.data, self.batch_size, self.num_negative)):
                 user_idx, pos_idx, neg_idx = batch
                 user_emb, pos_item_emb, neg_item_emb = model.negative_mixup(user_idx, pos_idx, neg_idx)
                 rec_loss = bpr_loss(user_emb, pos_item_emb, neg_item_emb)
-                rince_loss = 0.01 * model.cal_scl_loss([user_idx, pos_idx, neg_idx], dropped_adj1, dropped_adj2)
+                scl_loss_ = self.cl_rate * model.cal_scl_loss([user_idx, pos_idx, neg_idx], dropped_adj1, dropped_adj2)
                 batch_loss = rec_loss + l2_reg_loss(self.reg, user_emb, pos_item_emb,
-                                                    neg_item_emb) + rince_loss
+                                                    neg_item_emb) + scl_loss_
                 # Backward and optimize
                 optimizer.zero_grad()
                 batch_loss.backward()
@@ -59,7 +60,7 @@ class SGCL(GraphRecommender):
 
 
 class SGL_Encoder(nn.Module):
-    def __init__(self, data, emb_size, drop_rate, n_layers, temp, aug_type):
+    def __init__(self, data, emb_size, drop_rate, n_layers, temp, num_negative, aug_type):
         super(SGL_Encoder, self).__init__()
         self.data = data
         self.drop_rate = drop_rate
@@ -68,6 +69,7 @@ class SGL_Encoder(nn.Module):
         self.temp = temp
         self.aug_type = aug_type
         self.norm_adj = data.norm_adj
+        self.num_negative = num_negative
         self.embedding_dict = self._init_model()
         self.sparse_norm_adj = TorchGraphInterface.convert_sparse_mat_to_tensor(self.norm_adj).cuda()
 
@@ -136,7 +138,7 @@ class SGL_Encoder(nn.Module):
         for k in range(self.n_layers + 1):
             neg_emb = item_emb[k][neg_item]
             pos_emb = item_emb[k][pos_item]
-            neg_emb = neg_emb.reshape(-1, 40, self.emb_size)
+            neg_emb = neg_emb.reshape(-1, self.num_negative, self.emb_size)
             alpha = torch.rand_like(neg_emb).cuda()
             neg_emb = alpha * pos_emb.unsqueeze(dim=1) + (1 - alpha) * neg_emb
             scores = (u_emb.unsqueeze(dim=1) * neg_emb).sum(dim=-1)
