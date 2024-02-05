@@ -156,10 +156,6 @@ class SGL_Encoder(nn.Module):
         i_idx = torch.unique(torch.Tensor(idx[1]).type(torch.long)).cuda()
         user_view_1, item_view_1 = self.forward(perturbed_mat1)
         user_view_2, item_view_2 = self.forward(perturbed_mat2)
-        neg_view1 = item_view_1[idx[2]]
-        neg_view2 = item_view_1[idx[2]]
         view1 = torch.cat((user_view_1[u_idx], item_view_1[i_idx]), 0)
         view2 = torch.cat((user_view_2[u_idx], item_view_2[i_idx]), 0)
-        # return (rince_loss(view1, view2, 0.1, 0.01, self.temp) +
-        #         rince_loss(neg_view1, neg_view2, 0.1, 0.1, self.temp))
         return scl_loss(view1, view2, 0.1, 0.01, self.temp)
