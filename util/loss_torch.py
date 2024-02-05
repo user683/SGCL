@@ -10,10 +10,6 @@ def scl_loss(out_1, out_2, lam, p, temperature):
 
     pos = torch.exp(torch.sum(out_1 * out_2, dim=-1) / temperature)
 
-    # InfoNCE loss
-    # loss = -(torch.mean(torch.log(pos / (pos + neg))))
-
-    # RINCE loss
     neg = ((lam * (pos + neg)) ** p) / p
     pos = -(pos ** p) / p
     loss = pos.mean() + neg.mean()
@@ -27,16 +23,18 @@ def bpr_loss(user_emb, pos_item_emb, neg_item_emb):
     loss = -torch.log(10e-6 + torch.sigmoid(pos_score - neg_score))
     return torch.mean(loss)
 
+
 def triplet_loss(user_emb, pos_item_emb, neg_item_emb):
-    pos_score = ((user_emb-pos_item_emb)**2).sum(dim=1)
-    neg_score = ((user_emb-neg_item_emb)**2).sum(dim=1)
-    loss = F.relu(pos_score-neg_score+0.5)
+    pos_score = ((user_emb - pos_item_emb) ** 2).sum(dim=1)
+    neg_score = ((user_emb - neg_item_emb) ** 2).sum(dim=1)
+    loss = F.relu(pos_score - neg_score + 0.5)
     return torch.mean(loss)
+
 
 def l2_reg_loss(reg, *args):
     emb_loss = 0
     for emb in args:
-        emb_loss += torch.norm(emb, p=2)/emb.shape[0]
+        emb_loss += torch.norm(emb, p=2) / emb.shape[0]
     return emb_loss * reg
 
 
@@ -46,7 +44,7 @@ def batch_softmax_loss(user_emb, item_emb, temperature):
     pos_score = torch.exp(pos_score / temperature)
     ttl_score = torch.matmul(user_emb, item_emb.transpose(0, 1))
     ttl_score = torch.exp(ttl_score / temperature).sum(dim=1)
-    loss = -torch.log(pos_score / ttl_score+10e-6)
+    loss = -torch.log(pos_score / ttl_score + 10e-6)
     return torch.mean(loss)
 
 
@@ -68,12 +66,13 @@ def InfoNCE(view1, view2, temperature: float, b_cos: bool = True):
     return -score.mean()
 
 
-#this version is from recbole
+# this version is from recbole
 def info_nce(z_i, z_j, temp, batch_size, sim='dot'):
     """
     We do not sample negative examples explicitly.
     Instead, given a positive pair, similar to (Chen et al., 2017), we treat the other 2(N − 1) augmented examples within a minibatch as negative examples.
     """
+
     def mask_correlated_samples(batch_size):
         N = 2 * batch_size
         mask = torch.ones((N, N), dtype=bool)
@@ -110,4 +109,3 @@ def kl_divergence(p_logit, q_logit):
     p = F.softmax(p_logit, dim=-1)
     kl = torch.sum(p * (F.log_softmax(p_logit, dim=-1) - F.log_softmax(q_logit, dim=-1)), 1)
     return torch.mean(kl)
-

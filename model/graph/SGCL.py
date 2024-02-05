@@ -6,7 +6,7 @@ from base.graph_recommender import GraphRecommender
 from util.conf import OptionConf
 from util.sampler import next_batch_pairwise
 from base.torch_interface import TorchGraphInterface
-from util.loss_torch import bpr_loss, l2_reg_loss, InfoNCE, scl_loss
+from util.loss_torch import bpr_loss, l2_reg_loss, scl_loss
 from data.augmentor import GraphAugmentor
 
 
