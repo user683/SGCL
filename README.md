@@ -9,3 +9,4 @@ torch>=1.7.0
 <h2>Run Program</h2>
 ```
 python main.py
+```
