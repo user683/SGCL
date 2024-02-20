@@ -9,6 +9,4 @@ torch>=1.7.0
 <h2>Run Code</h2>
 ```
 python main.py
-
-You can set the hyper-parameters in SGCL.conf.
 ```
