@@ -11,3 +11,9 @@ torch>=1.7.0
 ```
 python main.py
 ```
+
+Hyper-parameters Setting
+
+```
+You can set the different parameters in the SGCL.conf.
+```
