@@ -16,7 +16,7 @@ class Recommender(object):
         self.batch_size = int(self.config['batch_size'])
         self.lRate = float(self.config['learnRate'])
         self.reg = float(self.config['reg.lambda'])
-        self.num_negative = int(self.config['num_negative'])
+        self.num_negative = int(self.config['num.negative'])
         self.output = OptionConf(self.config['output.setup'])
         current_time = strftime("%Y-%m-%d %H-%M-%S", localtime(time()))
         self.model_log = Log(self.model_name, self.model_name + ' ' + current_time)

@@ -19,7 +19,7 @@ class SGCL(GraphRecommender):
         drop_rate = float(args['-droprate'])
         n_layers = int(args['-n_layer'])
         temp = float(args['-temp'])
-        num_negative = self.config['num_negative']
+        num_negative = int(self.config['num.negative'])
         self.model = SGL_Encoder(self.data, self.emb_size, drop_rate, n_layers, temp, num_negative, aug_type)
 
     def train(self):
