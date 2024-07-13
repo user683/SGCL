@@ -17,3 +17,8 @@ Hyper-parameters Setting
 ```
 You can set the different parameters in the SGCL.conf.
 ```
+<h2>Acknowledgements</h2>
+
+```
+We thanks the author of the SELFRec https://github.com/Coder-Yu/SELFRec
+```
